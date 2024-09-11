@@ -1,3 +1,4 @@
+"use client"
 import Navbar from "./Navbar";
 import { BsMoonStarsFill } from "react-icons/bs";
 import { useTheme } from "next-themes";

@@ -1,14 +1,14 @@
+'use client';
+
 import React, { useState } from 'react'
 import { AiFillTrademarkCircle } from "react-icons/ai";
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import NavSingleItem from './NavSingleItem';
 import MenuItem from './MenuItem';
 import {RxHamburgerMenu} from 'react-icons/rx';
 
 
 const Navbar = () => {
-  const router = useRouter();
   const [active, setActive] = useState(false);
   const showMenu = () =>{
     setActive(!active);
