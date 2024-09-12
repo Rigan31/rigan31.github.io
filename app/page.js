@@ -6,6 +6,7 @@ import riganImg from '../public/cropped_rigan.jpg';
 import ParticlesBackground from "../components/ParticlesBackground"
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import { BsMoonStarsFill } from "react-icons/bs";
 
 
 export default function Home() {
@@ -42,7 +43,11 @@ export default function Home() {
 
         </section>
         
-        
+        {/* <div className="bg-yellow-200 dark:bg-black fixed bottom-2 right-2 text-base p-2">
+          <div onClick={()=> setTheme(theme === 'dark' ? 'light' : 'dark') } className=" bg-black dark:bg-white rounded-lg shadow-lg p-2 hover:text-lg transition duration-50 delay-50 cursor-pointer">
+              <BsMoonStarsFill className=" text-white dark:text-black"/>
+          </div>
+        </div> */}
       </main>
     </>
   );

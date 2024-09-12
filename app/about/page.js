@@ -4,8 +4,9 @@ import riganImg from '../../public/cropped_rigan.jpg'
 import {FaGithub, FaTwitter, FaLinkedin} from 'react-icons/fa'
 import {SiCodeforces} from 'react-icons/si'
 import Link from "next/link"
+import { BsMoonStarsFill } from "react-icons/bs";
 
-const about = () => {
+export default function About() {
   return (
     <>
         <Head>
@@ -110,10 +111,7 @@ const about = () => {
                     </div>
                 </div>
             </div>
-
         </main>
     </>
   )
-}
-
-export default about
+};
