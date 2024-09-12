@@ -21,7 +21,7 @@ export default function Home() {
       </Head>
       
       <main className=''>
-        <ParticlesBackground  theme={theme}/>
+        <ParticlesBackground  theme={"light"}/>
         <section className=''>
           
           
