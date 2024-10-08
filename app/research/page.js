@@ -40,15 +40,15 @@ const research = () => {
                                     <div className="mt-3">
                                         <span className="font-bold text-base" >Collaborators</span>
                                         <ul className=" text-base list-disc pl-10">
-                                            <li>Towhid Muhammad</li>
-                                            <li>Md. Olid Hasan Bhuiyan</li>
+                                            <li><span className="text-blue-500"><a href="https://towhid17.github.io/" target="_blank"><u>Towhid Muhammad</u></a></span></li>
+                                            <li><span className="text-blue-500"><a href="https://sizvy.github.io/" target="_blank"><u>Md. Olid Hasan Bhuiyan</u></a></span>(Currently in University of California, Riverside)</li>
                                         </ul>
 
                                     </div>
 
                                     <div className="mt-3">
                                         <span className="font-bold text-base">Supervisor: </span>
-                                        <span className="text-blue-500 font-bold"><a href="https://sites.google.com/site/tanzimahashem/" target="_blank">Dr. Tanzima Hashem</a></span>
+                                        <span className="text-blue-500 font-bold"><a href="https://sites.google.com/site/tanzimahashem/" target="_blank"><u>Dr. Tanzima Hashem</u></a></span>
                                     </div>
                                 </div>
 
@@ -83,7 +83,7 @@ const research = () => {
 
                                     <div className="mt-3">
                                         <span className="font-bold text-base">Supervisor: </span>
-                                        <span className="text-blue-500 font-bold"><a href="https://mshohrabhossain.buet.ac.bd/" target="_blank">Dr. Md. Shohrab Hossain</a></span>
+                                        <span className="text-blue-500 font-bold"><a href="https://mshohrabhossain.buet.ac.bd/" target="_blank"><u>Dr. Md. Shohrab Hossain</u></a></span>
                                     </div>
                                 </div>
 
@@ -111,7 +111,7 @@ const research = () => {
                                     <div className="mt-3">
                                         <span className="font-bold text-base" >Collaborators</span>
                                         <ul className=" text-base list-disc pl-10">
-                                            <li>Towhid Muhammad</li>
+                                            <li><span className="text-blue-500"><a href="https://towhid17.github.io/" target="_blank"><u>Towhid Muhammad</u></a></span></li>
                                             <li>Tawsif Shahriar Dipto</li>
                                             <li>Shakil Ahmed</li>
                                         </ul>
@@ -120,7 +120,7 @@ const research = () => {
 
                                     <div className="mt-3">
                                         <span className="font-bold text-base">Supervisor: </span>
-                                        <span className="text-blue-500 font-bold"><a href="https://sites.google.com/site/abdullahadnan" target="_blank">Dr. Muhammad Abdullah Adnan</a></span>
+                                        <span className="text-blue-500 font-bold"><a href="https://sites.google.com/site/abdullahadnan" target="_blank"><u>Dr. Muhammad Abdullah Adnan</u></a></span>
                                     </div>
                                 </div>
 

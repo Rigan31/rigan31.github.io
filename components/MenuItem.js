@@ -9,7 +9,7 @@ const MenuItem = ({showMenu, active}) => {
         <NavSingleItem showMenu={showMenu} path='/research' value='Research' />
         <NavSingleItem showMenu={showMenu} path='/projects' value='Projects'/>
         <NavSingleItem showMenu={showMenu} path='/experience' value='Experience'/>
-        <li onClick={showMenu} className="px-4 py-1 text-lg font-semibold hover:text-teal-600 hover:scale-110 transition duration-400 delay-100 dark:text-white"><u><Link href='https://drive.google.com/file/d/1TQLilZ7FwZ9G-Qq8G4Jw6fKIsYWqxUvR/view?usp=sharing' target='_blank'>Resume</Link></u></li>
+        <li className="px-4 py-1 text-lg font-semibold hover:text-teal-600 hover:scale-110 transition duration-400 delay-100 dark:text-white"><u><Link onClick={showMenu} href='https://drive.google.com/file/d/1TQLilZ7FwZ9G-Qq8G4Jw6fKIsYWqxUvR/view?usp=sharing' target='_blank'>Resume</Link></u></li>
         <NavSingleItem showMenu={showMenu} path='/contact' value='Contact'/>
     </ul>
   )
