@@ -9,9 +9,7 @@ import { useTheme } from 'next-themes';
 import { BsMoonStarsFill } from "react-icons/bs";
 
 
-export default function Home() {
-  const { theme, setTheme } = useTheme();
-  console.log(theme);     
+export default function Home() {     
   return (
     <>
     
@@ -22,7 +20,7 @@ export default function Home() {
       </Head>
       
       <main className=''>
-        <ParticlesBackground  theme={"light"}/>
+        <ParticlesBackground/>
         <section className=''>
           
           
@@ -42,12 +40,6 @@ export default function Home() {
           </div>
 
         </section>
-        
-        <div className="bg-yellow-200 dark:bg-black fixed bottom-2 right-2 text-base p-2">
-          <div onClick={()=> setTheme(theme === 'dark' ? 'light' : 'dark') } className=" bg-black dark:bg-white rounded-lg shadow-lg p-2 hover:text-lg transition duration-50 delay-50 cursor-pointer">
-              <BsMoonStarsFill className=" text-white dark:text-black"/>
-          </div>
-        </div>
       </main>
     </>
   );
