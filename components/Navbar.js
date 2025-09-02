@@ -35,7 +35,7 @@ const Navbar = () => {
                 <NavSingleItem path='/research' value='Research' />
                 <NavSingleItem path='/projects' value='Projects'/>
                 <NavSingleItem path='/experience' value='Experience'/>
-                <li className="px-4 py-1 text-lg font-semibold hover:text-teal-600 hover:scale-110 transition duration-400 delay-100 dark:text-white"><u><Link href='https://drive.google.com/file/d/1TQLilZ7FwZ9G-Qq8G4Jw6fKIsYWqxUvR/view?usp=sharing' target='_blank'>Resume</Link></u></li>
+                <li className="px-4 py-1 text-lg font-semibold hover:text-teal-600 hover:scale-110 transition duration-400 delay-100 dark:text-white"><u><Link href='https://drive.google.com/file/d/1OeQcglLtra2JUCub4j3nUYmSbyhx2GLw/view?usp=sharing' target='_blank'>Resume</Link></u></li>
                 <NavSingleItem path='/contact' value='Contact'/>
               </ul>
             </div>
