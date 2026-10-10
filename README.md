@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# rigan31.github.io
 
-## Getting Started
+Personal academic website of **Md Mahedi Hasan Rigan**, PhD student in Computer Science at UT Arlington.
+Built with [Next.js](https://nextjs.org/) (static export) and Tailwind CSS, deployed to GitHub Pages.
 
-First, run the development server:
+## Running locally
+
+Requires Node.js 18.17+ (22 LTS recommended).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000 (also shows draft blog posts)
+npm run build      # static site written to ./out
+npm run preview    # serve ./out locally
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Pushing to `main` builds and deploys the site through `.github/workflows/nextjs.yml`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Editing content
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Almost everything lives in plain data files, so you rarely need to touch page code:
 
-## Learn More
+| What                                        | Where                                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| Name, emails, links, research interests     | `data/profile.js`                               |
+| Recent updates (About page)                 | `data/news.js`                                  |
+| Research focus cards (About page)           | `data/research.js`                              |
+| Experience, service, awards, affiliations   | `data/experience.js`                            |
+| Publications                                | `data/publications.js`                          |
+| Blog posts                                  | `content/blog/*.md`                             |
+| CV (the "Resume" link)                      | `public/cv.pdf` (replace the file, keep the name) |
+| Profile photo                               | `public/cropped_rigan.jpg`                      |
 
-To learn more about Next.js, take a look at the following resources:
+### Publications
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Each entry in `data/publications.js` takes a title, authors (mark yourself with `me: true`, equal
+contribution with `equal: true`), venue, `type` (`conference`, `journal`, or `workshop`), and optional links
+(`paper`, `pdf`, `arxiv`, `code`, `project`, `slides`, `poster`, `video`). Add a teaser image to `public/`
+and set `image: "/my-figure.png"`; otherwise a generated thumbnail is shown.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Writing a blog post
 
-## Deploy on Vercel
+Create `content/blog/my-post.md` (served at `/blog/my-post`):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```markdown
+---
+title: "My post title"
+date: 2026-10-20
+description: "One-sentence summary shown in the post list."
+tags: [research, 3d-vision]
+draft: false
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Your post in Markdown. Code blocks, $\LaTeX$ math, tables, and images (put them in `public/blog/`) all work.
+```
+
+Posts with `draft: true` are visible in `npm run dev` but never published. See
+`content/blog/writing-guide.md` for a full feature reference.
+
+## Structure
+
+```
+app/            pages (home, about, publications, experience, blog, contact)
+components/     UI pieces, incl. SpiderWeb.js (interactive canvas on the home page)
+content/blog/   Markdown blog posts
+data/           site content
+lib/            blog loading + Markdown rendering
+public/         static files (images, cv.pdf)
+```

@@ -2,26 +2,181 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens (RGB triplets so Tailwind opacity modifiers work). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: 251 250 247;
+  --surface: 255 255 255;
+  --ink: 23 24 28;
+  --muted: 82 87 98;
+  --faint: 128 133 143;
+  --line: 229 226 219;
+  --accent: 37 71 197;
+  --accent-soft: 235 239 252;
+  --warm: 196 98 45;
+  --code-bg: 244 242 237;
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.16);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-5 sm:px-8;
+  }
+
+  /* Small monospace label above section headings. */
+  .eyebrow {
+    @apply font-mono text-[0.72rem] font-medium uppercase tracking-[0.14em] text-accent;
+  }
+
+  .section-title {
+    @apply font-serif text-[1.75rem] font-medium leading-tight tracking-tight text-ink;
+  }
+
+  .link-underline {
+    @apply underline decoration-accent/30 decoration-1 underline-offset-[3px] transition-colors hover:decoration-accent;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-paper shadow-sm hover:-translate-y-0.5 hover:bg-accent hover:shadow-md;
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-surface/70 text-ink backdrop-blur hover:-translate-y-0.5 hover:border-ink/30;
+  }
+
+  /* Compact outlined pill used for paper links etc. */
+  .chip-link {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 py-1 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-muted transition-colors hover:border-accent/50 hover:text-accent;
+  }
+
+  .tag {
+    @apply inline-flex items-center rounded-full bg-ink/[0.045] px-2.5 py-0.5 text-xs text-muted;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-line bg-paper px-4 py-3 text-[0.95rem] text-ink outline-none transition placeholder:text-faint/80 focus:border-accent/60 focus:bg-surface focus:ring-4 focus:ring-accent/10;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Fade-up entrance used across pages. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes web-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.web-fade {
+  animation: web-fade 1.6s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .rise,
+  .web-fade {
+    animation: none;
+  }
+}
+
+/* Syntax highlighting for blog code blocks (highlight.js classes). */
+.hljs-comment,
+.hljs-quote {
+  color: #8a8f98;
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-type {
+  color: #2547c5;
+}
+.hljs-string,
+.hljs-attr,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+  color: #2f7d4f;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable {
+  color: #b5541c;
+}
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-function .hljs-title {
+  color: #8a3ab9;
+}
+.hljs-meta,
+.hljs-doctag {
+  color: #6b7280;
+}
+.hljs-deletion {
+  color: #b42318;
+}
+
+/* Markdown table column alignment (`|---:|`). */
+.prose [align="right"] {
+  text-align: right;
+}
+.prose [align="center"] {
+  text-align: center;
+}
+
+/* Heading anchors added by rehype-autolink-headings. */
+.prose :where(h2, h3) > a.anchor {
+  @apply no-underline;
+  color: inherit;
+}
+.prose :where(h2, h3) > a.anchor:hover::after {
+  content: " #";
+  color: rgb(var(--accent) / 0.6);
 }
