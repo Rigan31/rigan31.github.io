@@ -57,11 +57,16 @@ Your post in Markdown. Code blocks, $\LaTeX$ math, tables, and images (put them 
 Posts with `draft: true` are visible in `npm run dev` but never published. See
 `content/blog/writing-guide.md` for a full feature reference.
 
+## Light and dark mode
+
+The site follows the visitor's system setting until they pick a theme with the navbar toggle (the choice
+is remembered). Both palettes are defined as color tokens at the top of `app/globals.css`.
+
 ## Structure
 
 ```
 app/            pages (home, about, publications, experience, blog, contact)
-components/     UI pieces, incl. SpiderWeb.js (interactive canvas on the home page)
+components/     UI pieces, incl. SpiderWeb.js (interactive home background) and ThemeToggle.js
 content/blog/   Markdown blog posts
 data/           site content
 lib/            blog loading + Markdown rendering

@@ -63,7 +63,7 @@ export default function Experience() {
           <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
             {awards.map((a) => (
               <li key={a.title} className="flex items-start gap-4 px-5 py-4">
-                <LuAward className="mt-0.5 shrink-0 text-amber-600" size={18} />
+                <LuAward className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" size={18} />
                 <div className="min-w-0 flex-1">
                   <p className="font-medium leading-snug text-ink">{a.title}</p>
                   {(a.org || a.note) && (
@@ -95,8 +95,8 @@ function PositionCard({ position: p }) {
             <h3 className="flex flex-wrap items-center gap-x-3 gap-y-1 font-serif text-[1.45rem] font-medium leading-snug text-ink">
               {p.role}
               {p.current && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/10 px-2 py-0.5 font-mono text-[0.62rem] font-medium uppercase tracking-wider text-emerald-700">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-600" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/10 px-2 py-0.5 font-mono text-[0.62rem] font-medium uppercase tracking-wider text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-600 dark:bg-emerald-400" />
                   Current
                 </span>
               )}
@@ -133,7 +133,7 @@ function PositionCard({ position: p }) {
             {p.highlights.map((h) => (
               <span
                 key={h}
-                className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-800"
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-800 dark:text-amber-300"
               >
                 <LuTrophy /> {h}
               </span>

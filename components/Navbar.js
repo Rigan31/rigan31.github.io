@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LuArrowUpRight, LuMenu, LuX } from "react-icons/lu";
 import profile from "@/data/profile";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
   { href: "/about", label: "About" },
@@ -52,23 +53,30 @@ export default function Navbar() {
           {profile.name}
         </Link>
 
-        <ul className="hidden items-center gap-1 md:flex">
-          {NAV.map((item) => (
-            <li key={item.href}>
-              <NavLink item={item} active={!item.external && isActive(pathname, item.href)} />
-            </li>
-          ))}
-        </ul>
+        <div className="hidden items-center gap-3 md:flex">
+          <ul className="flex items-center gap-1">
+            {NAV.map((item) => (
+              <li key={item.href}>
+                <NavLink item={item} active={!item.external && isActive(pathname, item.href)} />
+              </li>
+            ))}
+          </ul>
+          <span aria-hidden className="h-5 w-px bg-line" />
+          <ThemeToggle className="-mr-2" />
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="-mr-2 rounded-full p-2 text-ink transition-colors hover:bg-ink/5 md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-        >
-          {open ? <LuX size={22} /> : <LuMenu size={22} />}
-        </button>
+        <div className="-mr-2 flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-full p-2 text-ink transition-colors hover:bg-ink/5"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+          >
+            {open ? <LuX size={22} /> : <LuMenu size={22} />}
+          </button>
+        </div>
       </nav>
 
       {open && (

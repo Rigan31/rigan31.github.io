@@ -86,12 +86,12 @@ export default function ContactForm() {
       <div className="mt-6 flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p aria-live="polite" className="min-h-[1.25rem] text-sm">
           {status === "sent" && (
-            <span className="inline-flex items-center gap-1.5 text-emerald-700">
+            <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
               <LuCircleCheck /> Thanks! Your message has been sent.
             </span>
           )}
           {status === "error" && (
-            <span className="inline-flex items-center gap-1.5 text-red-700">
+            <span className="inline-flex items-center gap-1.5 text-red-700 dark:text-red-400">
               <LuCircleAlert /> Something went wrong. Please email me directly.
             </span>
           )}

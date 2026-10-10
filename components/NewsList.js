@@ -14,11 +14,11 @@ import RichText from "./RichText";
 
 const TYPES = {
   paper: { Icon: LuFileText, tint: "bg-accent/10 text-accent", label: "Paper" },
-  position: { Icon: LuBriefcase, tint: "bg-emerald-600/10 text-emerald-700", label: "Position" },
-  career: { Icon: LuBuilding2, tint: "bg-emerald-600/10 text-emerald-700", label: "Career" },
-  award: { Icon: LuAward, tint: "bg-amber-500/15 text-amber-700", label: "Award" },
-  milestone: { Icon: LuGraduationCap, tint: "bg-violet-600/10 text-violet-700", label: "Milestone" },
-  service: { Icon: LuUsers, tint: "bg-sky-600/10 text-sky-700", label: "Service" },
+  position: { Icon: LuBriefcase, tint: "bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400", label: "Position" },
+  career: { Icon: LuBuilding2, tint: "bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400", label: "Career" },
+  award: { Icon: LuAward, tint: "bg-amber-500/15 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400", label: "Award" },
+  milestone: { Icon: LuGraduationCap, tint: "bg-violet-600/10 text-violet-700 dark:bg-violet-400/10 dark:text-violet-400", label: "Milestone" },
+  service: { Icon: LuUsers, tint: "bg-sky-600/10 text-sky-700 dark:bg-sky-400/10 dark:text-sky-400", label: "Service" },
 };
 
 export default function NewsList({ items, initial = 6 }) {

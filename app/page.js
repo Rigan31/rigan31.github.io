@@ -12,8 +12,8 @@ export default function Home() {
       <SpiderWeb className="web-fade absolute inset-0 -z-10 h-full w-full" />
 
       <div className="container-page flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center py-12 text-center">
-        {/* The web's hub is centred on this element (it must not be animated itself). */}
-        <div data-web-hub className="relative h-44 w-44 sm:h-52 sm:w-52">
+        {/* The web fades out around this element (it must not be animated itself). */}
+        <div data-web-portrait className="relative h-44 w-44 sm:h-52 sm:w-52">
           <div className="rise h-full w-full">
             <span aria-hidden className="absolute -inset-3 rounded-full border border-line bg-paper/70" />
             <Image

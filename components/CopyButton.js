@@ -23,7 +23,7 @@ export default function CopyButton({ value, label = "Copy" }) {
       aria-label={copied ? "Copied" : `${label} ${value}`}
       title={copied ? "Copied!" : label}
       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors ${
-        copied ? "border-emerald-600/30 text-emerald-700" : "border-line text-faint hover:border-accent/40 hover:text-accent"
+        copied ? "border-emerald-600/30 text-emerald-700 dark:text-emerald-400" : "border-line text-faint hover:border-accent/40 hover:text-accent"
       }`}
     >
       {copied ? <LuCheck size={15} /> : <LuCopy size={15} />}

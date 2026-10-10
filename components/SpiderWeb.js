@@ -12,9 +12,6 @@ const DRAG = 0.06; // how much cursor motion drags threads along with it
 const MAX_OFFSET = 14; // max displacement of any point from rest (px)
 const GLOW = 170; // radius of the accent tint around the cursor
 
-const BASE = "rgba(23, 24, 28, 0.17)";
-const GLOW_COLOR = "rgba(37, 71, 197, 0.7)";
-const DEW = "rgba(23, 24, 28, 0.22)";
 // [thread group, line width, alpha multiplier]
 const STYLES = [
   ["frame", 1.05, 1],
@@ -23,6 +20,19 @@ const STYLES = [
   ["spiral", 0.7, 0.78],
 ];
 const TAU = Math.PI * 2;
+
+// Thread colours come from the site's CSS tokens, so the web follows light/dark mode.
+function readColors() {
+  const root = document.documentElement;
+  const css = getComputedStyle(root);
+  const rgb = (name) => css.getPropertyValue(name).trim().split(/\s+/).join(", ");
+  const dark = root.dataset.theme === "dark";
+  return {
+    base: `rgba(${rgb("--ink")}, ${dark ? 0.14 : 0.17})`,
+    glow: `rgba(${rgb("--accent")}, ${dark ? 0.85 : 0.7})`,
+    dew: `rgba(${rgb("--ink")}, ${dark ? 0.24 : 0.22})`,
+  };
+}
 
 // Small seeded PRNG so the web looks the same on every visit.
 function mulberry32(seed) {
@@ -188,37 +198,72 @@ function orbWeb(s, { cx, cy, r, spokes, turns, seed, w, h, inner = r * 0.22, fla
     const end = s.point(v.x + dx * (d + 2), v.y + dy * (d + 2), 1);
     s.thread([frameIdx[i], end], "frame");
   });
+
+  return frame.map((v, i) => ({ ...v, idx: frameIdx[i] }));
 }
 
-// One large web covering the whole canvas, its hub centred on `focus.hub` (the portrait).
+// Several webs spread around the edges, framing the centred portrait and text.
+// Positions are fractions of the canvas; radii are fractions of `unit`.
+const LAYOUT_WIDE = [
+  { x: 0.1, y: 0.2, r: 0.5, seed: 7 },
+  { x: 0.9, y: 0.25, r: 0.52, seed: 19 },
+  { x: 0.28, y: 1.0, r: 0.4, seed: 31 },
+  { x: 0.8, y: 0.98, r: 0.36, seed: 43 },
+];
+const LAYOUT_NARROW = [
+  { x: 0.04, y: 0.07, r: 0.62, seed: 7 },
+  { x: 1.0, y: 0.42, r: 0.55, seed: 19 },
+  { x: 0.0, y: 0.78, r: 0.5, seed: 31 },
+  { x: 0.88, y: 1.0, r: 0.5, seed: 43 },
+];
+
 function buildScene(w, h, focus) {
   const s = createScene();
-  const hub = focus.hub ?? { x: w / 2, y: h / 2, r: 0 };
-  const far = Math.max(
-    Math.hypot(hub.x, hub.y),
-    Math.hypot(w - hub.x, hub.y),
-    Math.hypot(hub.x, h - hub.y),
-    Math.hypot(w - hub.x, h - hub.y)
-  );
-  // Frame threads cut inside the circle, so oversize the web to reach every corner.
-  const r = far / 0.78;
-  const inner = hub.r ? hub.r + 26 : r * 0.2;
   const wide = w >= 900;
-  const turns = Math.round((r * 0.93 - inner) / (wide ? 24 : 18));
-  orbWeb(s, {
-    cx: hub.x,
-    cy: hub.y,
-    r,
-    spokes: wide ? 34 : 24,
-    turns,
-    seed: 7,
-    w,
-    h,
-    inner,
-    flare: 1.3,
-    hubRings: !hub.r,
-    dewCount: 26,
+  const unit = wide ? Math.min(w, h) : w;
+  const frames = (wide ? LAYOUT_WIDE : LAYOUT_NARROW).map(({ x, y, r: rf, seed }) => {
+    const r = rf * unit;
+    const inner = r * 0.16;
+    return orbWeb(s, {
+      cx: x * w,
+      cy: y * h,
+      r,
+      spokes: wide ? 22 : 18,
+      turns: Math.round((r * 0.93 - inner) / (wide ? 15 : 13)),
+      seed,
+      w,
+      h,
+      inner,
+      flare: 0.6,
+      dewCount: 10,
+    });
   });
+
+  // Bridge threads between the closest visible corners of neighbouring webs, sagging slightly.
+  const visible = (v) => v.x >= 0 && v.x <= w && v.y >= 0 && v.y <= h;
+  for (let i = 0; i < frames.length; i++) {
+    for (let j = i + 1; j < frames.length; j++) {
+      let best = null;
+      for (const a of frames[i].filter(visible)) {
+        for (const b of frames[j].filter(visible)) {
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (!best || d < best.d) best = { a, b, d };
+        }
+      }
+      if (best && best.d < unit * 0.5) {
+        const mid = { x: (best.a.x + best.b.x) / 2, y: (best.a.y + best.b.y) / 2 };
+        s.thread([best.a.idx, best.b.idx], "frame", { x: mid.x, y: mid.y + 1e4, amount: 0.04 });
+      }
+    }
+  }
+
+  // Areas where the web fades out: around the portrait and behind the text.
+  const clears = [];
+  if (focus.portrait) {
+    const { x, y, r } = focus.portrait;
+    clears.push({ x, y, rx: r + 70, ry: r + 70 });
+  }
+  if (focus.clear) clears.push(focus.clear);
 
   const n = s.xs.length;
   const groups = {};
@@ -234,7 +279,7 @@ function buildScene(w, h, focus) {
     pins: Uint8Array.from(s.pins),
     groups,
     dew: s.dew,
-    clear: focus.clear ?? null,
+    clears,
   };
 }
 
@@ -248,6 +293,7 @@ export default function SpiderWeb({ className = "" }) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let scene = null;
+    let colors = readColors();
     let w = 0;
     let h = 0;
     let dpr = 1;
@@ -263,11 +309,11 @@ export default function SpiderWeb({ className = "" }) {
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
 
-      let stroke = BASE;
+      let stroke = colors.base;
       if (pointer.active) {
         const g = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, GLOW);
-        g.addColorStop(0, GLOW_COLOR);
-        g.addColorStop(1, BASE);
+        g.addColorStop(0, colors.glow);
+        g.addColorStop(1, colors.base);
         stroke = g;
       }
       ctx.strokeStyle = stroke;
@@ -284,7 +330,7 @@ export default function SpiderWeb({ className = "" }) {
       }
 
       ctx.globalAlpha = 1;
-      ctx.fillStyle = DEW;
+      ctx.fillStyle = colors.dew;
       ctx.beginPath();
       for (const i of dew) {
         ctx.moveTo(x[i] + 1.6, y[i]);
@@ -302,9 +348,8 @@ export default function SpiderWeb({ className = "" }) {
       ctx.fillRect(0, 0, w, 56);
       ctx.restore();
 
-      // Soft elliptical fade behind the text so it stays readable.
-      if (scene.clear) {
-        const { x: ex, y: ey, rx, ry } = scene.clear;
+      // Soft elliptical fades around the portrait and behind the text so they stay readable.
+      for (const { x: ex, y: ey, rx, ry } of scene.clears) {
         ctx.save();
         ctx.globalCompositeOperation = "destination-out";
         ctx.translate(ex, ey);
@@ -399,15 +444,15 @@ export default function SpiderWeb({ className = "" }) {
     }
 
     const root = canvas.parentElement;
-    const hubEl = root?.querySelector("[data-web-hub]");
+    const portraitEl = root?.querySelector("[data-web-portrait]");
     const clearEl = root?.querySelector("[data-web-clear]");
 
-    // Positions of the portrait (web hub) and text block (faded area), relative to the canvas.
+    // Positions of the portrait and text block (where the web fades out), relative to the canvas.
     function measure(base) {
       const focus = {};
-      if (hubEl) {
-        const b = hubEl.getBoundingClientRect();
-        focus.hub = { x: b.left - base.left + b.width / 2, y: b.top - base.top + b.height / 2, r: b.width / 2 };
+      if (portraitEl) {
+        const b = portraitEl.getBoundingClientRect();
+        focus.portrait = { x: b.left - base.left + b.width / 2, y: b.top - base.top + b.height / 2, r: b.width / 2 };
       }
       if (clearEl) {
         const b = clearEl.getBoundingClientRect();
@@ -482,6 +527,13 @@ export default function SpiderWeb({ className = "" }) {
     // Web fonts can shift the layout slightly once they load.
     document.fonts?.ready.then(scheduleSetup);
 
+    // Recolour when the light/dark theme changes.
+    const themeObserver = new MutationObserver(() => {
+      colors = readColors();
+      if (scene) draw();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
     if (!reduceMotion) {
       window.addEventListener("pointermove", onPointerMove, { passive: true });
       window.addEventListener("pointerup", onPointerUp);
@@ -494,6 +546,7 @@ export default function SpiderWeb({ className = "" }) {
       cancelAnimationFrame(raf);
       clearTimeout(resizeTimer);
       ro.disconnect();
+      themeObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerLeave);

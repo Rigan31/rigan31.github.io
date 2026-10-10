@@ -48,7 +48,7 @@ export default function About() {
                     key={area.title}
                     className="card group p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_12px_30px_-18px_rgba(37,71,197,0.45)]"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent transition-colors group-hover:bg-accent group-hover:text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent transition-colors group-hover:bg-accent group-hover:text-white dark:group-hover:text-paper">
                       <Icon size={20} />
                     </span>
                     <h3 className="mt-5 font-serif text-[1.3rem] font-medium leading-snug text-ink">{area.title}</h3>

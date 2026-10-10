@@ -6,7 +6,7 @@ import { LuArrowUpRight, LuCode, LuFileText, LuGlobe, LuPresentation, LuVideo } 
 import { SiArxiv } from "react-icons/si";
 
 const TYPE_STYLE = {
-  conference: { label: "Conference", badge: "bg-accent text-white" },
+  conference: { label: "Conference", badge: "bg-accent text-white dark:text-paper" },
   journal: { label: "Journal", badge: "bg-emerald-700 text-white" },
   workshop: { label: "Workshop", badge: "bg-amber-600 text-white" },
 };
@@ -145,7 +145,12 @@ function PublicationItem({ pub }) {
 
 function Thumbnail({ pub }) {
   return (
-    <div className="relative aspect-[2/1] w-full overflow-hidden rounded-xl border border-line bg-surface sm:aspect-[16/10]">
+    // Paper figures are drawn for white backgrounds, so they keep one in dark mode too.
+    <div
+      className={`relative aspect-[2/1] w-full overflow-hidden rounded-xl border border-line sm:aspect-[16/10] ${
+        pub.image ? "bg-white" : "bg-surface"
+      }`}
+    >
       {pub.image ? (
         <Image src={pub.image} alt="" fill sizes="(min-width: 640px) 12rem, 100vw" className="object-contain p-2" />
       ) : (
@@ -164,7 +169,7 @@ function SplatArt({ seed, label }) {
     h = Math.imul(h ^ (h >>> 13), 3266489909);
     return ((h ^= h >>> 16) >>> 0) / 4294967296;
   };
-  const palette = ["#2547c5", "#5b7cfa", "#9db2ff", "#c4622d", "#f0a36b", "#17181c"];
+  const palette = ["#2547c5", "#5b7cfa", "#9db2ff", "#c4622d", "#f0a36b", "#8a8f98"];
   const splats = Array.from({ length: 22 }, () => ({
     cx: 10 + rand() * 140,
     cy: 8 + rand() * 84,
@@ -177,7 +182,7 @@ function SplatArt({ seed, label }) {
   const filterId = `blur-${seed}`;
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-br from-accent-soft via-surface to-[#fbefe6]">
+    <div className="absolute inset-0 bg-gradient-to-br from-accent-soft via-surface to-warm/10">
       <svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" className="h-full w-full" aria-hidden>
         <defs>
           <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
