@@ -9,8 +9,15 @@ const STIFFNESS = 0.04; // spring pulling each point back to its rest position
 const DAMPING = 0.9; // velocity retained per frame (lower = settles faster)
 const PUSH = 0.3; // how strongly the cursor pushes threads aside
 const DRAG = 0.06; // how much cursor motion drags threads along with it
-const MAX_OFFSET = 14; // max displacement of any point from rest (px)
+const MAX_OFFSET = 20; // max displacement of any point from rest (px)
 const GLOW = 170; // radius of the accent tint around the cursor
+const WIND = 8; // peak sway from the breeze at a web's centre (px); 0 turns the breeze off
+// Breeze waves sin(kx·x + ky·y + offset + ω·t); how they combine is set in step().
+const BREEZE_WAVES = [
+  { kx: 0.0075, ky: 0.003, offset: 0, omega: 1.2 }, // broad sideways sway (~800 px waves)
+  { kx: 0.021, ky: 0.016, offset: 0, omega: 2.8 }, // fine sideways flutter (~250 px waves)
+  { kx: 0.006, ky: -0.005, offset: 1.1, omega: 1.0 }, // vertical lift
+];
 
 // [thread group, line width, alpha multiplier]
 const STYLES = [
@@ -63,6 +70,7 @@ function createScene() {
   const xs = [];
   const ys = [];
   const pins = [];
+  const sway = []; // how freely each point moves in the breeze (centres billow, anchors stay put)
   const dew = [];
   const groups = { frame: [], radial: [], hub: [], spiral: [] };
 
@@ -70,6 +78,7 @@ function createScene() {
     xs.push(x);
     ys.push(y);
     pins.push(pinned);
+    sway.push(0.8);
     return xs.length - 1;
   };
 
@@ -107,12 +116,13 @@ function createScene() {
     return out;
   };
 
-  return { xs, ys, pins, dew, groups, point, thread };
+  return { xs, ys, pins, sway, dew, groups, point, thread };
 }
 
 function orbWeb(s, { cx, cy, r, spokes, turns, seed, w, h, inner = r * 0.22, flare = 0, hubRings = true, dewCount = 9 }) {
   const rand = mulberry32(seed);
   const jitter = (amount) => (rand() * 2 - 1) * amount;
+  const firstPoint = s.xs.length;
 
   // Irregular outer frame that the radii attach to.
   const sides = 5 + Math.floor(rand() * 2);
@@ -198,6 +208,12 @@ function orbWeb(s, { cx, cy, r, spokes, turns, seed, w, h, inner = r * 0.22, fla
     const end = s.point(v.x + dx * (d + 2), v.y + dy * (d + 2), 1);
     s.thread([frameIdx[i], end], "frame");
   });
+
+  // Like a sail, the web billows most at its hub and least where it is anchored.
+  for (let i = firstPoint; i < s.xs.length; i++) {
+    const d = Math.hypot(s.xs[i] - cx, s.ys[i] - cy) / r;
+    s.sway[i] = Math.max(0.35, 1 - 0.65 * d * d);
+  }
 
   return frame.map((v, i) => ({ ...v, idx: frameIdx[i] }));
 }
@@ -290,6 +306,19 @@ function buildScene(w, h, focus) {
   const n = s.xs.length;
   const groups = {};
   for (const [name, list] of Object.entries(s.groups)) groups[name] = list.map((a) => Int32Array.from(a));
+
+  // The breeze is a sum of travelling waves sin(phase + ωt). Each point's phase is fixed,
+  // so its sine and cosine are stored once and every tick needs only multiply-adds.
+  const waves = BREEZE_WAVES.map(({ kx, ky, offset }) => {
+    const sin = new Float32Array(n);
+    const cos = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const phase = s.xs[i] * kx + s.ys[i] * ky + offset;
+      sin[i] = Math.sin(phase);
+      cos[i] = Math.cos(phase);
+    }
+    return { sin, cos };
+  });
   return {
     n,
     rx: Float32Array.from(s.xs),
@@ -299,6 +328,8 @@ function buildScene(w, h, focus) {
     vx: new Float32Array(n),
     vy: new Float32Array(n),
     pins: Uint8Array.from(s.pins),
+    sway: Float32Array.from(s.sway),
+    waves,
     groups,
     dew: s.dew,
     clears,
@@ -322,6 +353,10 @@ export default function SpiderWeb({ className = "" }) {
     let raf = 0;
     let lastTime = 0;
     let stillFrames = 0;
+    let tick = 0; // physics ticks since start; drives the breeze
+    let lastFastest = 0;
+    let visible = true;
+    const breeze = !reduceMotion && WIND > 0;
     const pointer = { x: -1e4, y: -1e4, dx: 0, dy: 0, vx: 0, vy: 0, active: false };
 
     function draw() {
@@ -390,16 +425,33 @@ export default function SpiderWeb({ className = "" }) {
 
     // One physics tick; returns the largest squared point speed.
     function step() {
-      const { n, x, y, vx, vy, rx, ry, pins } = scene;
+      const { n, x, y, vx, vy, rx, ry, pins, sway, waves } = scene;
       const { x: px, y: py, vx: pvx, vy: pvy, active } = pointer;
       const r2 = INFLUENCE * INFLUENCE;
       const max2 = MAX_OFFSET * MAX_OFFSET;
       let fastest = 0;
 
+      // Breeze: slow waves rolling across the page, with gusts that come and go.
+      const t = tick / 60;
+      const gust = breeze ? WIND * (0.72 + 0.28 * Math.sin(t * 0.27) * Math.sin(t * 0.41 + 1.3)) : 0;
+      const [w0, w1, w2] = BREEZE_WAVES.map((wave) => [Math.cos(wave.omega * t), Math.sin(wave.omega * t)]);
+      const [a0, a1, a2] = waves;
+
       for (let i = 0; i < n; i++) {
         if (pins[i]) continue;
-        let ax = (rx[i] - x[i]) * STIFFNESS;
-        let ay = (ry[i] - y[i]) * STIFFNESS;
+        let tx = rx[i];
+        let ty = ry[i];
+        if (gust) {
+          // sin(phase + ωt) = sin(phase)·cos(ωt) + cos(phase)·sin(ωt)
+          const a = gust * sway[i];
+          const s0 = a0.sin[i] * w0[0] + a0.cos[i] * w0[1];
+          const s1 = a1.sin[i] * w1[0] + a1.cos[i] * w1[1];
+          const s2 = a2.sin[i] * w2[0] + a2.cos[i] * w2[1];
+          tx += a * (0.7 * s0 + 0.3 * s1);
+          ty += a * 0.6 * s2;
+        }
+        let ax = (tx - x[i]) * STIFFNESS;
+        let ay = (ty - y[i]) * STIFFNESS;
         if (active) {
           const dx = x[i] - px;
           const dy = y[i] - py;
@@ -436,6 +488,12 @@ export default function SpiderWeb({ className = "" }) {
     }
 
     function frame(time) {
+      // The idle breeze is slow (~0.1 px per frame), so draw it at ~30 fps to save battery;
+      // the cursor and settling after a push still run at full rate.
+      if (!pointer.active && lastFastest < 0.25 && lastTime && time - lastTime < 30) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       // Fixed 60 Hz physics regardless of display refresh rate.
       const ticks = lastTime ? Math.min(3, Math.max(1, Math.round((time - lastTime) / 16.67))) : 1;
       lastTime = time;
@@ -446,14 +504,16 @@ export default function SpiderWeb({ className = "" }) {
         pointer.vy = Math.max(-40, Math.min(40, pointer.vy * 0.55 + pointer.dy * 0.45));
         pointer.dx = 0;
         pointer.dy = 0;
+        tick++;
         fastest = Math.max(fastest, step());
       }
       draw();
 
+      lastFastest = fastest;
       const pointerMoving = Math.abs(pointer.vx) + Math.abs(pointer.vy) > 0.05;
       stillFrames = fastest < 1e-4 && !pointerMoving ? stillFrames + 1 : 0;
-      if (stillFrames > 20) {
-        raf = 0; // web has settled; sleep until the pointer moves again
+      if (!visible || (!breeze && stillFrames > 20)) {
+        raf = 0; // settled or off-screen: sleep until the pointer moves or it scrolls back into view
         lastTime = 0;
         return;
       }
@@ -462,7 +522,7 @@ export default function SpiderWeb({ className = "" }) {
 
     function wake() {
       stillFrames = 0;
-      if (!raf && scene) raf = requestAnimationFrame(frame);
+      if (!raf && scene && visible) raf = requestAnimationFrame(frame);
     }
 
     const root = canvas.parentElement;
@@ -498,6 +558,7 @@ export default function SpiderWeb({ className = "" }) {
       canvas.height = Math.round(h * dpr);
       scene = buildScene(w, h, measure(rect));
       draw();
+      if (breeze) wake();
     }
 
     function onPointerMove(e) {
@@ -556,6 +617,13 @@ export default function SpiderWeb({ className = "" }) {
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
+    // Only animate while the web is on screen.
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && breeze) wake();
+    });
+    io.observe(canvas);
+
     if (!reduceMotion) {
       window.addEventListener("pointermove", onPointerMove, { passive: true });
       window.addEventListener("pointerup", onPointerUp);
@@ -569,6 +637,7 @@ export default function SpiderWeb({ className = "" }) {
       clearTimeout(resizeTimer);
       ro.disconnect();
       themeObserver.disconnect();
+      io.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerLeave);
