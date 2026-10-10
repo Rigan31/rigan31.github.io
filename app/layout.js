@@ -26,7 +26,7 @@ export const metadata = {
     description,
     url: profile.siteUrl,
     siteName: profile.name,
-    images: ["/cropped_rigan.jpg"],
+    images: ["/profile.jpg"],
     type: "website",
   },
   twitter: { card: "summary", title: profile.name, description },

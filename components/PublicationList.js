@@ -1,8 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { LuArrowUpRight, LuCode, LuFileText, LuGlobe, LuPresentation, LuVideo } from "react-icons/lu";
+import {
+  LuArrowUpRight,
+  LuCode,
+  LuFileText,
+  LuGlobe,
+  LuMaximize2,
+  LuPresentation,
+  LuVideo,
+  LuX,
+} from "react-icons/lu";
 import { SiArxiv } from "react-icons/si";
 
 const TYPE_STYLE = {
@@ -89,7 +98,10 @@ function PublicationItem({ pub }) {
   const links = LINKS.filter(([key]) => pub.links[key]);
 
   return (
-    <article id={pub.id} className="grid scroll-mt-24 gap-5 py-7 first:pt-1 sm:grid-cols-[12rem_1fr] sm:gap-7">
+    <article
+      id={pub.id}
+      className="grid scroll-mt-24 gap-5 py-8 first:pt-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-8"
+    >
       <Thumbnail pub={pub} />
 
       <div className="min-w-0">
@@ -144,18 +156,82 @@ function PublicationItem({ pub }) {
 }
 
 function Thumbnail({ pub }) {
-  return (
-    // Paper figures are drawn for white backgrounds, so they keep one in dark mode too.
-    <div
-      className={`relative aspect-[2/1] w-full overflow-hidden rounded-xl border border-line sm:aspect-[16/10] ${
-        pub.image ? "bg-white" : "bg-surface"
-      }`}
-    >
-      {pub.image ? (
-        <Image src={pub.image} alt="" fill sizes="(min-width: 640px) 12rem, 100vw" className="object-contain p-2" />
-      ) : (
+  const [open, setOpen] = useState(false);
+
+  if (!pub.image) {
+    return (
+      <div className="relative aspect-[12/5] w-full overflow-hidden rounded-xl border border-line bg-surface">
         <SplatArt seed={pub.id} label={pub.venueShort} />
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Paper figures are drawn for white backgrounds, so they keep one in dark mode too. */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Enlarge figure: ${pub.title}`}
+        className="group relative block aspect-[12/5] w-full overflow-hidden rounded-xl border border-line bg-white transition-shadow hover:shadow-[0_12px_30px_-18px_rgba(23,24,28,0.45)]"
+      >
+        <Image
+          src={pub.image}
+          alt={`Figure from ${pub.title}`}
+          fill
+          sizes="(min-width: 1024px) 26rem, 100vw"
+          className="object-contain p-2.5 transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+        <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <LuMaximize2 size={13} />
+        </span>
+      </button>
+      {open && <Lightbox src={pub.image} caption={pub.title} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+// Full-size figure viewer: closes on Escape, the close button, or a click outside the image.
+function Lightbox({ src, caption, onClose }) {
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={caption}
+      onClick={onClose}
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 bg-black/80 p-4 backdrop-blur-sm sm:p-10"
+    >
+      <button
+        ref={closeRef}
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+      >
+        <LuX size={22} />
+      </button>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={`Figure from ${caption}`}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[80vh] max-w-full rounded-xl bg-white object-contain p-2 shadow-2xl sm:p-4"
+      />
+      <p className="max-w-3xl text-balance text-center font-serif text-lg text-white/85">{caption}</p>
     </div>
   );
 }

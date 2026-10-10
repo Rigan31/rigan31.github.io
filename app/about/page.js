@@ -16,7 +16,7 @@ import profile from "@/data/profile";
 import news from "@/data/news";
 import { researchAreas, researchIntro } from "@/data/research";
 import { affiliations } from "@/data/experience";
-import portrait from "@/public/cropped_rigan.jpg";
+import portrait from "@/public/profile.jpg";
 
 export const metadata = { title: "About" };
 

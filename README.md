@@ -29,14 +29,15 @@ Almost everything lives in plain data files, so you rarely need to touch page co
 | Publications                                | `data/publications.js`                          |
 | Blog posts                                  | `content/blog/*.md`                             |
 | CV (the "Resume" link)                      | `public/cv.pdf` (replace the file, keep the name) |
-| Profile photo                               | `public/cropped_rigan.jpg`                      |
+| Profile photo (home and About pages)        | `public/profile.jpg`                            |
 
 ### Publications
 
 Each entry in `data/publications.js` takes a title, authors (mark yourself with `me: true`, equal
 contribution with `equal: true`), venue, `type` (`conference`, `journal`, or `workshop`), and optional links
-(`paper`, `pdf`, `arxiv`, `code`, `project`, `slides`, `poster`, `video`). Add a teaser image to `public/`
-and set `image: "/my-figure.png"`; otherwise a generated thumbnail is shown.
+(`paper`, `pdf`, `arxiv`, `code`, `project`, `slides`, `poster`, `video`). Put the paper's figure in
+`public/figures/` and set `image: "/figures/my-figure.webp"` (visitors can click it to enlarge);
+otherwise a generated thumbnail is shown.
 
 ### Writing a blog post
 

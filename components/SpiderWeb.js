@@ -239,6 +239,33 @@ function buildScene(w, h, focus) {
     });
   });
 
+  // Two smaller webs, one either side of the portrait, whose threads run behind the photo.
+  if (focus.portrait) {
+    const { x, y, r: photoR } = focus.portrait;
+    const r = photoR * 2.3;
+    const inner = r * 0.16;
+    for (const { side, rise, seed } of [
+      { side: -1, rise: 0.25, seed: 59 },
+      { side: 1, rise: -0.1, seed: 71 },
+    ]) {
+      frames.push(
+        orbWeb(s, {
+          cx: x + side * photoR * 1.85,
+          cy: y - rise * photoR,
+          r,
+          spokes: wide ? 18 : 14,
+          turns: Math.round((r * 0.93 - inner) / (wide ? 12 : 10)),
+          seed,
+          w,
+          h,
+          inner,
+          flare: 0.5,
+          dewCount: 5,
+        })
+      );
+    }
+  }
+
   // Bridge threads between the closest visible corners of neighbouring webs, sagging slightly.
   const visible = (v) => v.x >= 0 && v.x <= w && v.y >= 0 && v.y <= h;
   for (let i = 0; i < frames.length; i++) {
@@ -257,13 +284,8 @@ function buildScene(w, h, focus) {
     }
   }
 
-  // Areas where the web fades out: around the portrait and behind the text.
-  const clears = [];
-  if (focus.portrait) {
-    const { x, y, r } = focus.portrait;
-    clears.push({ x, y, rx: r + 70, ry: r + 70 });
-  }
-  if (focus.clear) clears.push(focus.clear);
+  // The web fades out behind the text so it stays readable.
+  const clears = focus.clear ? [focus.clear] : [];
 
   const n = s.xs.length;
   const groups = {};
@@ -447,7 +469,7 @@ export default function SpiderWeb({ className = "" }) {
     const portraitEl = root?.querySelector("[data-web-portrait]");
     const clearEl = root?.querySelector("[data-web-clear]");
 
-    // Positions of the portrait and text block (where the web fades out), relative to the canvas.
+    // Positions of the portrait (small web behind it) and text block (web fades out), relative to the canvas.
     function measure(base) {
       const focus = {};
       if (portraitEl) {

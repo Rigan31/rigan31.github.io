@@ -1,7 +1,7 @@
 // Peer-reviewed publications, newest first.
 // - `authors`: "*" suffix marks equal contribution; `me: true` highlights you.
 // - `type`: conference | journal | workshop (drives the filter tabs).
-// - `image`: optional teaser in /public; without one, a generated thumbnail is shown.
+// - `image`: optional figure in /public (click to enlarge); without one, a generated thumbnail is shown.
 // - `links`: any of paper, pdf, arxiv, code, project, slides, video, poster.
 const ME = { name: "Md Mahedi Hasan Rigan", me: true };
 
@@ -15,6 +15,7 @@ const publications = [
     year: 2026,
     type: "conference",
     tags: ["3D Gaussian Splatting", "Adversarial Defense"],
+    image: "/figures/mvpisplat.webp",
     links: {},
   },
   {
@@ -26,6 +27,7 @@ const publications = [
     year: 2026,
     type: "workshop",
     tags: ["3D Gaussian Splatting", "Adversarial Defense"],
+    image: "/figures/gs-filtering.webp",
     links: {},
   },
   {
@@ -43,7 +45,7 @@ const publications = [
     year: 2025,
     type: "journal",
     tags: ["Ubiquitous Computing", "Mobile Health", "Computer Vision"],
-    image: "/dehydration.png",
+    image: "/figures/h2opulse.webp",
     links: { paper: "https://dl.acm.org/doi/10.1145/3729490" },
   },
   {
@@ -60,7 +62,7 @@ const publications = [
     year: 2025,
     type: "journal",
     tags: ["Web Security", "Bot Detection", "Machine Learning"],
-    image: "/botdetection.png",
+    image: "/figures/web-bots.webp",
     links: { paper: "https://ieeexplore.ieee.org/document/11275848/" },
   },
 ];
